@@ -5,18 +5,43 @@ import numpy as np
 # read input image
 img_ = cv2.imread('2.JPG')
 # img_ = cv2.imread('Image2.png')
-img_ = cv2.resize(img_, (0, 0), fx=1, fy=1)
+img_ = cv2.resize(img_, (0, 0), fx=1, fy=1)  # to resize image size i.e. by 50% just change from fx=1 to fx=0.5.
 img1 = cv2.cvtColor(img_, cv2.COLOR_BGR2GRAY)
 img = cv2.imread('1.jpg')
 # img = cv2.imread('Image1.png')
 img = cv2.resize(img, (0, 0), fx=1, fy=1)
 img2 = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-# Step1. Keypoints detection using SIFT
+# Step1. Keypoints detection using SIFT (Scale Invariant Feature Transform), a very powerful OpenCV algorithm
 sift = cv2.xfeatures2d.SIFT_create()
+
+# detect and extract features from the image
+def detectAndCompute(image, method=None):
+    if method == 'sift':
+        descriptor = cv2.xfeatures2d.SIFT_create()
+    elif method == 'surf':
+        descriptor = cv2.xfeatures2d.SURF_create()
+    elif method == 'brisk':
+        descriptor = cv2.BRISK_create()
+    elif method == 'orb':
+        descriptor = cv2.ORB_create()
+
+    # get keypoints and descriptors
+    (kps, features) = descriptor.detectAndCompute(image, None)
+
+    return (kps, features)
+
+
 # find the keypoints and descriptors with SIFT
-kp1, des1 = sift.detectAndCompute(img1, None)
-kp2, des2 = sift.detectAndCompute(img2, None)
+# kp1 and kp2 are keypoints, des1 and des2 are the descriptors
+# kp1, des1 = sift.detectAndCompute(img1, None)
+# kp2, des2 = sift.detectAndCompute(img2, None)
+kp1, des1 = detectAndCompute(img1, 'sift')
+kp2, des2 = detectAndCompute(img2, 'sift')
+
+print('Keypoints of Image1: ', len(kp1))
+print('Keypoints of Image2: ', len(kp2))
+
 cv2.imshow('original_image_1_keypoints', cv2.drawKeypoints(img_, kp1, None))
 cv2.imshow('original_image_2_keypoints', cv2.drawKeypoints(img, kp2, None))
 
@@ -25,7 +50,7 @@ FLANN_INDEX_KDTREE = 0
 index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
 search_params = dict(checks=50)
 match = cv2.FlannBasedMatcher(index_params, search_params)
-matches = match.knnMatch(des1, des2, k=2)
+matches = match.knnMatch(des1, des2, k=2)  # k=2, knnMatcher to give out 2 best matches for each descriptor
 
 # Step2. Descriptors matching between two images using BFMatcher
 # bf = cv2.BFMatcher()
@@ -38,6 +63,7 @@ for m in matches:
          good.append(m)
     matches = np.asarray(good)
 
+print(matches.shape)
 draw_params = dict(matchColor=(0, 255, 0), singlePointColor=None, flags=2)
 img3 = cv2.drawMatchesKnn(img_, kp1, img, kp2, good, None, **draw_params)
 cv2.imshow("original_image_drawMatches.png", img3)
@@ -85,3 +111,5 @@ cv2.destroyAllWindows()
 # cv2.imwrite('output.jpg',dst)
 # plt.imshow(dst)
 # plt.show()
+
+
