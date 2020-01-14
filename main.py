@@ -3,10 +3,10 @@ import cv2
 import numpy as np
 
 # read input image
-img_ = cv2.imread('Image_Set_2/2.png')
+img_ = cv2.imread('Image_Set_1/2.jpg')
 img_ = cv2.resize(img_, (0, 0), fx=1, fy=1)  # to resize image size i.e. by 50% just change from fx=1 to fx=0.5.
 img1 = cv2.cvtColor(img_, cv2.COLOR_BGR2GRAY)
-img = cv2.imread('Image_Set_2/1.png')
+img = cv2.imread('Image_Set_1/1.jpg')
 img = cv2.resize(img, (0, 0), fx=1, fy=1)
 img2 = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -41,10 +41,10 @@ print('Keypoints of Image1: ', len(kp1))
 print('Keypoints of Image2: ', len(kp2))
 
 cv2.imshow('original_image_1_keypoints', cv2.drawKeypoints(img_, kp1, None))
-cv2.imwrite('Image_Set_2/sift_keypoints_1.jpg', cv2.drawKeypoints(img_, kp1, None))
+cv2.imwrite('Image_Set_1/sift_keypoints_1.jpg', cv2.drawKeypoints(img_, kp1, None))
 cv2.imshow('original_image_2_keypoints', cv2.drawKeypoints(img, kp2, None))
-cv2.imwrite('Image_Set_2/sift_keypoints_2.jpg', cv2.drawKeypoints(img, kp2, None))
-
+cv2.imwrite('Image_Set_1/sift_keypoints_2.jpg', cv2.drawKeypoints(img, kp2, None))
+#
 # Step2. Descriptors matching between two images using FLANNBasedMatcher
 FLANN_INDEX_KDTREE = 0
 index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
@@ -67,7 +67,7 @@ print('There are %d good matches' % (len(good)))
 draw_params = dict(matchColor=(0, 255, 0), singlePointColor=None, flags=2)
 img3 = cv2.drawMatchesKnn(img_, kp1, img, kp2, good, None, **draw_params)
 cv2.imshow("drawMatches.png", img3)
-cv2.imwrite("Image_Set_2/drawMatches.png", img3)
+cv2.imwrite("Image_Set_1/drawMatches.png", img3)
 
 
 # Step3. Homography estimation using RANSAC
@@ -97,11 +97,11 @@ def trim(frame):
 # Step4. Warping transformation using homography
 dst = cv2.warpPerspective(img_, H, (img.shape[1] + img_.shape[1], img.shape[0]))
 cv2.imshow("Warped Image", dst)
-cv2.imwrite("Image_Set_2/Warped_Image.jpg", dst)
+cv2.imwrite("Image_Set_1/Warped_Image.jpg", dst)
 
 dst[0:img.shape[0], 0:img.shape[1]] = img
 cv2.imshow("output.jpg", trim(dst))
-cv2.imwrite("Image_Set_2/output.jpg", trim(dst))
+cv2.imwrite("Image_Set_1/output.jpg", trim(dst))
 cv2.imshow("output.jpg", dst)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
